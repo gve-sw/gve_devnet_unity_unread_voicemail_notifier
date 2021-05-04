@@ -2,3 +2,4 @@
 USER = r'server\user'
 PASSWORD = 'server_password'
 HOSTNAME = 'hostname.goes.here.com'
+DOMAIN = 'domain.goes.here.com'

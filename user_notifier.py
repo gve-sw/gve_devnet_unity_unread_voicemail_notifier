@@ -37,12 +37,13 @@ for user in user_list:
     addCUPIInfo(server, admin, pw, user_info)
 
     if user_info['total_unread'] > '2':
-        from_addr = '{}@emailserver.com'.format(user_info['manager'])
-        to_addr = '{}@emailserver.com'.format(user_info['alias'])
-
         mail_server_usr = MAIL_SERVER.USER
         mail_server_pw = MAIL_SERVER.PASSWORD
         mail_server_hostname = MAIL_SERVER.HOSTNAME
+        mail_server_domain = MAIL_SERVER.DOMAIN
+
+        from_addr = '{}@{}'.format(user_info['manager'], mail_server_domain)
+        to_addr = '{}@{}'.format(user_info['alias'], mail_server_domain)
 
         mail_server = smtplib.SMTP(mail_server_hostname, 587)
         mail_server.ehlo()

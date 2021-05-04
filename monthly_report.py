@@ -23,8 +23,9 @@ from unity_notifier_functions import *
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-admin = ADMIN.user
-pw = ADMIN.pw
+server = ADMIN.SERVER
+admin = ADMIN.USER
+pw = ADMIN.PW
 
 user_file = open('users.txt', 'r')
 users = user_file.read()
@@ -34,9 +35,9 @@ manager_dict = defaultdict(list)
 
 for user in user_list:
     user_info = {}
-    addIdentifyingInfo(user, admin, pw, user_info)
-    addCUPIInfo(admin, pw, user_info)
-    addCUMIInfo(admin, pw, user_info)
+    addIdentifyingInfo(user, server, admin, pw, user_info)
+    addCUPIInfo(server, admin, pw, user_info)
+    addCUMIInfo(server, admin, pw, user_info)
 
     manager_dict[user_info['manager']].append(user_info)
 

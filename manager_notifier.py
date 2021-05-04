@@ -46,12 +46,13 @@ for user in user_list:
             managers[user_info['manager']].append(user_info)
 
 for manager in managers:
-    from_addr = '{}@emailserver.com'.format(admin)
-    to_addr = '{}@emailserver.com'.format(manager)
-
     mail_server_usr = MAIL_SERVER.USER
     mail_server_pw = MAIL_SERVER.PASSWORD
     mail_server_hostname = MAIL_SERVER.HOSTNAME
+    mail_server_domain = MAIL_SERVER.DOMAIN
+
+    from_addr = '{}@{}'.format(admin, mail_server_domain)
+    to_addr = '{}@{}'.format(manager, mail_server_domain)
 
     mail_server = smtplib.SMTP(mail_server_hostname, 587)
     mail_server.ehlo()

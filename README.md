@@ -55,6 +55,7 @@ for your mail server.
 USER = r"server\user"
 PASSWORD = "server_password"
 HOSTNAME = "something.example.com"
+DOMAIN = "example.com"
 ```
 
 #### User list
@@ -72,6 +73,11 @@ scheduler.add_job(lazyrun(('python', 'user_notifier.py')), 'cron', day_of_week='
 scheduler.add_job(lazyrun(('python', 'monthly_report.py')), 'cron', day='3rd thu', hour=8, minute=30)
 ```
 
+For more information about the python module apscheduler, visit this link:
+https://apscheduler.readthedocs.io/en/stable/modules/triggers/cron.html#module-apscheduler.triggers.cron
+
+For more information about CRON expressions in general, visit this link:
+https://en.wikipedia.org/wiki/Cron#CRON_expression
 
 ## Usage
 To run the code to send an email notification to a user about their unopened
