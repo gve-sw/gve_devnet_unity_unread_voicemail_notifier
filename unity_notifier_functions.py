@@ -23,10 +23,8 @@ import time
 from collections import defaultdict
 import csv
 import smtplib
-import MAIL_SERVER
 
 
-#
 def addIdentifyingInfo(id, server, admin, pw, user_dict):
     search_url = '{}/vmrest/users?query=(alias is {})'.format(server, id)
     search = requests.get(search_url, auth=(admin, pw), verify=False,
@@ -90,17 +88,17 @@ def addCUPIInfo(server, admin, pw, user_dict):
 
 
 def addCUMIInfo(server, admin, pw, user_dict):
-    cumi_url = '{}/vmrest/mailbox/folders/inbox/messages?userobjectid={}'.format(server, user_dict['obj_id'])
-    cumi_info = requests.get(cumi_url, auth=(admin, pw), verify=False,
+    read_url = '{}/vmrest/mailbox/folders/inbox/messages?userobjectid={}&read=true'.format(server, user_dict['obj_id'])
+    read_info = requests.get(read_url, auth=(admin, pw), verify=False,
         headers={'Accept': 'application/json'})
 
-    if cumi_info.status_code == 200:
-        cumi_info = cumi_info.json()
-        if 'Message' in cumi_info.keys():
-            messages = cumi_info['Message']
-
-            user_dict['vm_count_24hr'] = countVMInGivenTimePeriod(messages, 24)
-            user_dict['vm_count_7day'] = countVMInGivenTimePeriod(messages, 24 * 7)
+    if read_info.status_code == 200:
+        read_info = read_info.json()
+        if 'Message' in read_info.keys():
+            read_messages = read_info['Message']
+            user_dict['total_read_30days'] = count30Day(read_messages)
+        else:
+            user_dict['total_read_30days'] = 'n/a'
 
     else:
         print('The status code of the messages API call was not 200.')
@@ -116,24 +114,13 @@ def addCUMIInfo(server, admin, pw, user_dict):
         if 'Message' in unread.keys():
             unread_messages = unread['Message']
             user_dict['oldest'] = getOldestMessageInDays(unread_messages)
-            user_dict['total_unread_30days'] = unreadCount30Day(unread_messages)
+        else:
+            user_dict['oldest'] = 'n/a'
 
     else:
         print('The status code of the unread voicemail search was not 200.')
         sys.exit(1)
 
-
-#return the number of voicemails received in a time period specified in hours
-def countVMInGivenTimePeriod(messages, time_period):
-    message_count = 0
-
-    for message in messages:
-        time_diff = (time.mktime(time.localtime()) - (int(message['ArrivalTime']) / 1000)) / 3600
-
-        if time_diff <= time_period:
-            message_count += 1
-
-    return message_count
 
 #return the age of the oldest unread message in days
 def getOldestMessageInDays(messages):
@@ -148,11 +135,11 @@ def getOldestMessageInDays(messages):
     return oldest_age_days
 
 
-def unreadCount30Day(unread_messages):
-    unread_count_30day = 0
+def count30Day(messages):
+    count_30day = 0
 
-    for message in unread_messages:
+    for message in messages:
         if (time.mktime(time.localtime()) - (int(message['ArrivalTime']) / 1000)) / 86400 <= 30:
-            unread_count_30day += 1
+            count_30day += 1
 
-    return unread_count_30day
+    return count_30day

@@ -15,15 +15,25 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied.'''
 
 
-from unity_notifier_functions import *
 import ADMIN
+import MAIL_SERVER
+from unity_notifier_functions import *
 import urllib3
+
+
+print('Generating user emails...')
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 server = ADMIN.SERVER
 admin = ADMIN.USER
 pw = ADMIN.PW
+
+mail_server_usr = MAIL_SERVER.USER
+mail_server_pw = MAIL_SERVER.PASSWORD
+mail_server_hostname = MAIL_SERVER.HOSTNAME
+mail_server_domain = MAIL_SERVER.DOMAIN
+it_notifier_addr = MAIL_SERVER.FROM_ADDR
 
 user_file = open('users.txt', 'r')
 users = user_file.read()
@@ -36,13 +46,8 @@ for user in user_list:
     addCUMIInfo(server, admin, pw, user_info)
     addCUPIInfo(server, admin, pw, user_info)
 
-    if user_info['total_unread'] > '2':
-        mail_server_usr = MAIL_SERVER.USER
-        mail_server_pw = MAIL_SERVER.PASSWORD
-        mail_server_hostname = MAIL_SERVER.HOSTNAME
-        mail_server_domain = MAIL_SERVER.DOMAIN
-
-        from_addr = '{}@{}'.format(user_info['manager'], mail_server_domain)
+    if user_info['total_unread'] > '20':
+        from_addr = '{}'.format(it_notifier_addr)
         to_addr = '{}@{}'.format(user_info['alias'], mail_server_domain)
 
         mail_server = smtplib.SMTP(mail_server_hostname, 587)
@@ -50,8 +55,12 @@ for user in user_list:
         mail_server.starttls()
         mail_server.login(mail_server_usr, mail_server_pw)
 
-        header = 'Subject: Voicemail Notifier\n\n'
-        msg_body = 'You have ' + user_info['total_unread'] + ' unopened voicemails that need to be addressed.\n\n'
+        header = 'Subject: Voicemail Alert - You Have 20+ Unread Voicemails\n\n'
+        msg_body = '''{},\n\nOur records indicate that you have 20 or more unread voicemails in your mailbox assigned to extension {}. Please
+listen to your voicemails and address immediately. If the number of unread voicemails continues to increase, your manager will be
+notified. Children's National policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
+as deemed approprate, by close of business the following business day.\n\n If you believe this message was sent in error, and/or have
+questions or issues about accessing your voicemail, please contact the Help Desk (476-HELP).'''.format(user_info['first_name'], user_info['extension'])
 
         message = header + msg_body
 

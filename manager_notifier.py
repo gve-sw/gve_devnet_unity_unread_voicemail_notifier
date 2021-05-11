@@ -16,16 +16,24 @@ or implied.'''
 
 
 import ADMIN
+import MAIL_SERVER
 import urllib3
-from collections import defaultdict
 from unity_notifier_functions import *
 
+
+print('Generating manager emails...')
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 server = ADMIN.SERVER
 admin = ADMIN.USER
 pw = ADMIN.PW
+
+mail_server_usr = MAIL_SERVER.USER
+mail_server_pw = MAIL_SERVER.PASSWORD
+mail_server_hostname = MAIL_SERVER.HOSTNAME
+mail_server_domain = MAIL_SERVER.DOMAIN
+it_notifier_addr = MAIL_SERVER.FROM_ADDR
 
 user_file = open('users.txt', 'r')
 users = user_file.read()
@@ -40,18 +48,16 @@ for user in user_list:
     addCUMIInfo(server, admin, pw, user_info)
     addCUPIInfo(server, admin, pw, user_info)
 
-    if user_info['total_unread'] >= '3':
+    if user_info['total_unread'] >= '30':
         time_diff = (time.mktime(time.localtime()) - (int(user_info['oldest']) / 1000)) / 86400
         if time_diff > 30:
             managers[user_info['manager']].append(user_info)
 
 for manager in managers:
-    mail_server_usr = MAIL_SERVER.USER
-    mail_server_pw = MAIL_SERVER.PASSWORD
-    mail_server_hostname = MAIL_SERVER.HOSTNAME
-    mail_server_domain = MAIL_SERVER.DOMAIN
+    manager_dict = {}
+    addIdentifyingInfo(manager, server, admin, pw, manager_dict)
 
-    from_addr = '{}@{}'.format(admin, mail_server_domain)
+    from_addr = '{}'.format(it_notifier_addr)
     to_addr = '{}@{}'.format(manager, mail_server_domain)
 
     mail_server = smtplib.SMTP(mail_server_hostname, 587)
@@ -59,11 +65,15 @@ for manager in managers:
     mail_server.starttls()
     mail_server.login(mail_server_usr, mail_server_pw)
 
-    header = 'Subject: Voicemail Notifier\n'
-    message = header + '\n'
+    header = 'Subject: Weekly Report - Staff Over 30 Unread Voicemails\n\n'
+    message = header + '''{},\n\nOur records indicate that the following employees
+have 30 or more unread voicemails in their mailboxes. Please contact these employees to ensure they listen to
+their voicemails and address immediately. Children's National policy requires all staff to listen to voicemails
+and either save, delete, or respond to the voicemail, as deemed appropriate, by close of business the following
+business day.\n\nIf you have questions about the information below, please contact the Help Desk (476-HELP).\n\n'''.format(manager_dict['first_name'])
 
     for report in managers[manager]:
-        add_string = report['first_name'] + ' ' + report['last_name'] + ' in building ' + report['building'] + ' has ' + report['total_unread'] + ' unopened voicemails.\n\n'
+        add_string = '{} {} with extension {} has {} unopened voicemails.\n\n'.format(report['first_name'], report['last_name'], report['extension'], report['total_unread'])
         message += add_string
 
     mail_server.sendmail(from_addr, to_addr, message)

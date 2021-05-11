@@ -26,6 +26,6 @@ def lazyrun(cmd):
 
 scheduler = BlockingScheduler()
 scheduler.add_job(lazyrun(('python', 'manager_notifier.py')), 'cron', day_of_week='thu', hour=8, minute=30)
-scheduler.add_job(lazyrun(('python', 'user_notifier.py')), 'cron', day_of_week='mon-fri', hour=8, minute=30)
-scheduler.add_job(lazyrun(('python', 'monthly_report.py')), 'cron', day='3rd thu', hour=8, minute=30)
+scheduler.add_job(lazyrun(('python', 'user_notifier.py')), 'cron', day_of_week='mon-fri', hour=8, minute=31)
+scheduler.add_job(lazyrun(('python', 'monthly_report.py')), 'cron', day='3rd thu', hour=8, minute=32)
 scheduler.start()
