@@ -90,7 +90,7 @@ starting on line 69. This is what it reads by default:
 ```python
 message = header + '''{},\n\nOur records indicate that the following employees
 have 30 or more unread voicemails in their mailboxes. Please contact these employees to ensure they listen to
-their voicemails and address immediately. Children's National policy requires all staff to listen to voicemails
+their voicemails and address immediately. Our policy requires all staff to listen to voicemails
 and either save, delete, or respond to the voicemail, as deemed appropriate, by close of business the following
 business day.\n\nIf you have questions about the information below, please contact the Help Desk (476-HELP).\n\n'''.format(manager_dict['first_name'])
 ```
@@ -100,7 +100,7 @@ on line 58. This is what it reads by default:
 ```python
 msg_body = '''{},\n\nOur records indicate that you have 20 or more unread voicemails in your mailbox assigned to extension {}. Please
 listen to your voicemails and address immediately. If the number of unread voicemails continues to increase, your manager will be
-notified. Children's National policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
+notified. Our policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
 as deemed approprate, by close of business the following business day.\n\n If you believe this message was sent in error, and/or have
 questions or issues about accessing your voicemail, please contact the Help Desk (476-HELP).'''.format(user_info['first_name'], user_info['extension'])
 ```
@@ -110,7 +110,7 @@ starting on line 91. This is what it reads by default:
 ```python
 text = '''{},
 
-The following report is generated from Children's National telecommunications system and
+The following report is generated from our telecommunications system and
 includes information for all of your direct reports that have an assigned extension in our
 telecommunications system (and are listed accordingly PeopleSoft).  Please take a moment
 to review -
