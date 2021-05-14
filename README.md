@@ -3,7 +3,8 @@ This is the Unity Unread Voicemail Notifier source code. Using the CUMI and CUPI
 and Python, we have developed a method to pull the number of unopened voicemails of Unity users.
 If the number of unopened voicemails is over a specified threshold, an email is sent to the
 user to notify them of their unopened voicemail count, and an email is sent to their manager detailing
-their reports who have unopened voicemails over a specified threshold.
+their reports who have unopened voicemails over a specified threshold, where the oldest is older than 
+a specified number of days old.
 Additionally, we have developed a method using these APIs to generate a report for each manager
 that features information that can be found in a standard Unity Report for each of a manager's 
 reports.
@@ -92,7 +93,7 @@ message = header + '''{},\n\nOur records indicate that the following employees
 have 30 or more unread voicemails in their mailboxes. Please contact these employees to ensure they listen to
 their voicemails and address immediately. Our policy requires all staff to listen to voicemails
 and either save, delete, or respond to the voicemail, as deemed appropriate, by close of business the following
-business day.\n\nIf you have questions about the information below, please contact the Help Desk (476-HELP).\n\n'''.format(manager_dict['first_name'])
+business day.\n\nIf you have questions about the information below, please contact the Help Desk.\n\n'''.format(manager_dict['first_name'])
 ```
 
 In user_notifier.py, you can find the body of the email starting 
@@ -102,7 +103,7 @@ msg_body = '''{},\n\nOur records indicate that you have 20 or more unread voicem
 listen to your voicemails and address immediately. If the number of unread voicemails continues to increase, your manager will be
 notified. Our policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
 as deemed approprate, by close of business the following business day.\n\n If you believe this message was sent in error, and/or have
-questions or issues about accessing your voicemail, please contact the Help Desk (476-HELP).'''.format(user_info['first_name'], user_info['extension'])
+questions or issues about accessing your voicemail, please contact the Help Desk.\n\n'''.format(user_info['first_name'], user_info['extension'])
 ```
 
 In monthly_report.py, you can find the body of the email 
@@ -112,7 +113,7 @@ text = '''{},
 
 The following report is generated from our telecommunications system and
 includes information for all of your direct reports that have an assigned extension in our
-telecommunications system (and are listed accordingly PeopleSoft).  Please take a moment
+telecommunications system (and are listed accordingly in the directory).  Please take a moment
 to review -
 
 - If staff have more than 20 unread voicemails, ensure the staff member addresses
@@ -120,22 +121,28 @@ immediately.
 - If a listed employee is no longer active/has been terminated, you are responsible for
 clearing their voicemail box and then contacting the Help Desk to deactivate the extension.
 - If an employee is listed erroneously (does not report to you), contact the Help Desk.
-- If you have any questions about an assigned extension, contact the Help Desk.'''.format(manager_info_dict['first_name'])
+- If you have any questions about an assigned extension, contact the Help Desk.\n\n'''.format(manager_info_dict['first_name'])
 ```
 
 #### Voicemail Thresholds
 By default, emails are sent to users when they have 20 or more unopened voicemails and to managers when their 
-reports have 30 or more unopened voicemails. 
+reports have 30 or more unopened voicemails, where the oldest is 5 days old. 
 
 To change the threshold at which emails are sent to users, edit the line of code in user_notifier.py at line 49.
 ```python
-if user_info['total_unread'] > '20':
+if int(user_info['total_unread']) > 20:
 ```
 
 To change the threshold at which emails are sent to managers, 
 edit the line of code in manager_notifier.py at line 51.
 ```python
-if user_info['total_unread'] >= '30':
+if int(user_info['total_unread']) >= 30:
+```
+
+To change the age for which enauks are sent to managers, edit the line of code 
+in manager_notifier.py at line 53.
+```python
+if time_diff > 5:
 ```
 
 

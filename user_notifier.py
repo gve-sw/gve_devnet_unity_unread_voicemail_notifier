@@ -46,7 +46,7 @@ for user in user_list:
     addCUMIInfo(server, admin, pw, user_info)
     addCUPIInfo(server, admin, pw, user_info)
 
-    if user_info['total_unread'] > '20':
+    if int(user_info['total_unread']) > 20:
         from_addr = '{}'.format(it_notifier_addr)
         to_addr = '{}@{}'.format(user_info['alias'], mail_server_domain)
 
@@ -58,9 +58,9 @@ for user in user_list:
         header = 'Subject: Voicemail Alert - You Have 20+ Unread Voicemails\n\n'
         msg_body = '''{},\n\nOur records indicate that you have 20 or more unread voicemails in your mailbox assigned to extension {}. Please
 listen to your voicemails and address immediately. If the number of unread voicemails continues to increase, your manager will be
-notified. Our policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
+notified. Children's National policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
 as deemed approprate, by close of business the following business day.\n\n If you believe this message was sent in error, and/or have
-questions or issues about accessing your voicemail, please contact the Help Desk (476-HELP).'''.format(user_info['first_name'], user_info['extension'])
+questions or issues about accessing your voicemail, please contact the Help Desk.'''.format(user_info['first_name'], user_info['extension'])
 
         message = header + msg_body
 

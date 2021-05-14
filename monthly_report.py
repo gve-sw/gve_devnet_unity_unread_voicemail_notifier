@@ -92,7 +92,7 @@ for manager, reports in manager_dict.items():
 
 The following report is generated from our telecommunications system and
 includes information for all of your direct reports that have an assigned extension in our
-telecommunications system (and are listed accordingly PeopleSoft).  Please take a moment
+telecommunications system (and are listed accordingly in our directory).  Please take a moment
 to review -
 
 - If staff have more than 20 unread voicemails, ensure the staff member addresses

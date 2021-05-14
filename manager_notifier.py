@@ -48,9 +48,9 @@ for user in user_list:
     addCUMIInfo(server, admin, pw, user_info)
     addCUPIInfo(server, admin, pw, user_info)
 
-    if user_info['total_unread'] >= '30':
+    if int(user_info['total_unread']) >= 30:
         time_diff = (time.mktime(time.localtime()) - (int(user_info['oldest']) / 1000)) / 86400
-        if time_diff > 30:
+        if time_diff > 5:
             managers[user_info['manager']].append(user_info)
 
 for manager in managers:
@@ -68,9 +68,9 @@ for manager in managers:
     header = 'Subject: Weekly Report - Staff Over 30 Unread Voicemails\n\n'
     message = header + '''{},\n\nOur records indicate that the following employees
 have 30 or more unread voicemails in their mailboxes. Please contact these employees to ensure they listen to
-their voicemails and address immediately. Our policy requires all staff to listen to voicemails
+their voicemails and address immediately. Children's National policy requires all staff to listen to voicemails
 and either save, delete, or respond to the voicemail, as deemed appropriate, by close of business the following
-business day.\n\nIf you have questions about the information below, please contact the Help Desk (476-HELP).\n\n'''.format(manager_dict['first_name'])
+business day.\n\nIf you have questions about the information below, please contact the Help Desk.\n\n'''.format(manager_dict['first_name'])
 
     for report in managers[manager]:
         add_string = '{} {} with extension {} has {} unopened voicemails.\n\n'.format(report['first_name'], report['last_name'], report['extension'], report['total_unread'])
