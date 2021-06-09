@@ -43,10 +43,11 @@ mail_server_hostname = MAIL_SERVER.HOSTNAME
 mail_server_domain = MAIL_SERVER.DOMAIN
 it_notifier_addr = MAIL_SERVER.FROM_ADDR
 
-user_file = open('users.txt', 'r')
-users = user_file.read()
-user_file.close()
-user_list = users.splitlines()
+#user_file = open('users.txt', 'r')
+#users = user_file.read()
+#user_file.close()
+#user_list = users.splitlines()
+user_list = getUsers(server, admin, pw)
 manager_dict = defaultdict(list)
 mgr_info_dict = {}
 today = datetime.now()
@@ -54,11 +55,18 @@ month = today.strftime('%B')
 
 for user in user_list:
     user_info = {}
-    addIdentifyingInfo(user, server, admin, pw, user_info)
-    addCUPIInfo(server, admin, pw, user_info)
+    flag = addIdentifyingInfo(user, server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
+    flag = addCUPIInfo(server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
     addCUMIInfo(server, admin, pw, user_info)
 
     manager_dict[user_info['manager']].append(user_info)
+    print("Added info about {}'s report {} ".format(user_info['manager'], user_info['alias']))
 
 for manager, reports in manager_dict.items():
     msg = MIMEMultipart()
@@ -119,3 +127,5 @@ clearing their voicemail box and then contacting the Help Desk to deactivate the
     smtp.close()
 
     print('Report sent to {}'.format(manager))
+
+print("All reports sent.")

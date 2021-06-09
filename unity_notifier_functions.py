@@ -25,6 +25,26 @@ import csv
 import smtplib
 
 
+def getUsers(server, admin, pw):
+    user_list = []
+    user_url = '{}/vmrest/users'.format(server)
+    users = requests.get(user_url, auth=(admin, pw), verify=False,
+        headers={'Accept': 'application/json'})
+
+    if users.status_code == 200:
+        users = users.json()
+        for user in users['User']:
+            user_list.append(user['Alias'])
+
+        return user_list
+
+    else:
+        print(users.status_code)
+        print(users.text)
+        print("The status code of get users was not 200.")
+        sys.exit(1)
+
+
 def addIdentifyingInfo(id, server, admin, pw, user_dict):
     search_url = '{}/vmrest/users?query=(alias is {})'.format(server, id)
     search = requests.get(search_url, auth=(admin, pw), verify=False,
@@ -34,16 +54,29 @@ def addIdentifyingInfo(id, server, admin, pw, user_dict):
         search = search.json()
 
         if search['@total'] == '1':
+            flag = True
             search_user = search['User']
-            user_dict['obj_id'] = search_user['ObjectId']
-            user_dict['first_name'] = search_user['FirstName']
-            user_dict['last_name'] = search_user['LastName']
+            required_keys = ['ObjectId', 'FirstName', 'LastName']
+
+            for key in required_keys:
+                if key not in search_user.keys():
+                    flag = False
+                    break
+
+            if flag:
+                user_dict['obj_id'] = search_user['ObjectId']
+                user_dict['first_name'] = search_user['FirstName']
+                user_dict['last_name'] = search_user['LastName']
+
+            return flag
 
         else:
             print('No user with that id was found.')
             sys.exit(1)
 
     else:
+        print(search.status_code)
+        print(search.text)
         print('The status code of the search was not 200.')
         sys.exit(1)
 
@@ -55,35 +88,39 @@ def addCUPIInfo(server, admin, pw, user_dict):
 
     if cupi_info.status_code == 200:
         cupi_info = cupi_info.json()
-        user_dict['building'] = cupi_info['Building']
-        user_dict['manager'] = cupi_info['Manager']
-        user_dict['alias'] = cupi_info['Alias']
-        user_dict['billing_id'] = cupi_info['BillingId']
-        user_dict['creation_time'] = cupi_info['CreationTime']
-        user_dict['department'] = cupi_info['Department']
-        user_dict['display_name'] = cupi_info['DisplayName']
-        user_dict['email_address'] = cupi_info['EmailAddress']
-        user_dict['employee_id'] = cupi_info['EmployeeId']
-        user_dict['ldap_type'] = cupi_info['LdapType']
-        user_dict['ldap_user_id'] = cupi_info['LdapCcmUserId']
-        user_dict['smtp_address'] = cupi_info['SmtpAddress']
-        user_dict['title'] = cupi_info['Title']
-        user_dict['extension'] = cupi_info['DtmfAccessId']
+        required_keys = ['Building', 'Manager', 'Alias', 'BillingId',
+        'CreationTime', 'Department', 'DisplayName', 'EmailAddress',
+        'EmployeeId', 'LdapType', 'LdapCcmUserId', 'SmtpAddress', 'Title',
+        'DtmfAccessId']
+        flag = True
+        for key in required_keys:
+            if key not in cupi_info.keys():
+                flag = False
+                break
+
+        if flag:
+            user_dict['building'] = cupi_info['Building']
+            user_dict['manager'] = cupi_info['Manager']
+            user_dict['alias'] = cupi_info['Alias']
+            user_dict['billing_id'] = cupi_info['BillingId']
+            user_dict['creation_time'] = cupi_info['CreationTime']
+            user_dict['department'] = cupi_info['Department']
+            user_dict['display_name'] = cupi_info['DisplayName']
+            user_dict['email_address'] = cupi_info['EmailAddress']
+            user_dict['employee_id'] = cupi_info['EmployeeId']
+            user_dict['ldap_type'] = cupi_info['LdapType']
+            user_dict['ldap_user_id'] = cupi_info['LdapCcmUserId']
+            user_dict['smtp_address'] = cupi_info['SmtpAddress']
+            user_dict['title'] = cupi_info['Title']
+            user_dict['extension'] = cupi_info['DtmfAccessId']
+
+        return flag
 
     else:
+        print(cupi_info.status_code)
+        print(cupi_info.text)
         print('The status code of the user info search was not 200.')
-        sys.exit(1)
-
-    login_info_url = '{}/vmrest/users/{}/credential/password'.format(server, user_dict['obj_id'])
-    login_info = requests.get(login_info_url, auth=(admin, pw), verify=False,
-        headers={'Accept': 'application/json'})
-
-    if login_info.status_code == 200:
-        login_info = login_info.json()
-        user_dict['failed_login_count'] = login_info['HackCount']
-
-    else:
-        print("The status code of the messages API call was not 200.")
+        print("user info search failed with {}".format(user_dict['first_name']))
         sys.exit(1)
 
 
@@ -101,6 +138,8 @@ def addCUMIInfo(server, admin, pw, user_dict):
             user_dict['total_read_30days'] = 'n/a'
 
     else:
+        print(read_info.status_code)
+        print(read_info.text)
         print('The status code of the messages API call was not 200.')
         sys.exit(1)
 
@@ -118,6 +157,8 @@ def addCUMIInfo(server, admin, pw, user_dict):
             user_dict['oldest'] = 'n/a'
 
     else:
+        print(unread.status_code)
+        print(unread.text)
         print('The status code of the unread voicemail search was not 200.')
         sys.exit(1)
 

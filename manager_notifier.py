@@ -35,23 +35,32 @@ mail_server_hostname = MAIL_SERVER.HOSTNAME
 mail_server_domain = MAIL_SERVER.DOMAIN
 it_notifier_addr = MAIL_SERVER.FROM_ADDR
 
-user_file = open('users.txt', 'r')
-users = user_file.read()
-user_file.close()
-user_list = users.splitlines()
+#user_file = open('users.txt', 'r')
+#users = user_file.read()
+#user_file.close()
+#user_list = users.splitlines()
+user_list = getUsers(server, admin, pw)
 managers = defaultdict(list)
 
 
 for user in user_list:
     user_info = {}
-    addIdentifyingInfo(user, server, admin, pw, user_info)
+    flag = addIdentifyingInfo(user, server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
+    flag = addCUPIInfo(server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
     addCUMIInfo(server, admin, pw, user_info)
-    addCUPIInfo(server, admin, pw, user_info)
 
     if int(user_info['total_unread']) >= 30:
         time_diff = (time.mktime(time.localtime()) - (int(user_info['oldest']) / 1000)) / 86400
         if time_diff > 5:
             managers[user_info['manager']].append(user_info)
+
+    print('added info about {}'.format(user))
 
 for manager in managers:
     manager_dict = {}
@@ -80,3 +89,5 @@ business day.\n\nIf you have questions about the information below, please conta
     mail_server.quit()
 
     print('Email sent to ' + manager)
+
+print("All manager emails sent.")

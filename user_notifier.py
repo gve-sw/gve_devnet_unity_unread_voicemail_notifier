@@ -35,16 +35,25 @@ mail_server_hostname = MAIL_SERVER.HOSTNAME
 mail_server_domain = MAIL_SERVER.DOMAIN
 it_notifier_addr = MAIL_SERVER.FROM_ADDR
 
-user_file = open('users.txt', 'r')
-users = user_file.read()
-user_file.close()
-user_list = users.splitlines()
+#user_file = open('users.txt', 'r')
+#users = user_file.read()
+#user_file.close()
+#user_list = users.splitlines()
+user_list = getUsers(server, admin, pw)
 
 for user in user_list:
     user_info = {}
-    addIdentifyingInfo(user, server, admin, pw, user_info)
+    flag = addIdentifyingInfo(user, server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
+    flag = addCUPIInfo(server, admin, pw, user_info)
+    if not flag:
+        user_list.remove(user)
+        continue
     addCUMIInfo(server, admin, pw, user_info)
-    addCUPIInfo(server, admin, pw, user_info)
+
+    print("Added information about {}".format(user))
 
     if int(user_info['total_unread']) > 20:
         from_addr = '{}'.format(it_notifier_addr)
@@ -60,7 +69,7 @@ for user in user_list:
 listen to your voicemails and address immediately. If the number of unread voicemails continues to increase, your manager will be
 notified. Children's National policy requires all staff to listen to voicemails and either save, delete, or respond to the voicemail,
 as deemed approprate, by close of business the following business day.\n\n If you believe this message was sent in error, and/or have
-questions or issues about accessing your voicemail, please contact the Help Desk.'''.format(user_info['first_name'], user_info['extension'])
+questions or issues about accessing your voicemail, please contact the Help Desk (476-HELP).'''.format(user_info['first_name'], user_info['extension'])
 
         message = header + msg_body
 
@@ -68,3 +77,5 @@ questions or issues about accessing your voicemail, please contact the Help Desk
         mail_server.quit()
 
         print('Email sent to {}'.format(user_info['alias']))
+
+print('All user emails sent.')
