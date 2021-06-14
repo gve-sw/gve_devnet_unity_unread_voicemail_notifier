@@ -75,11 +75,13 @@ for manager in managers:
     mail_server.login(mail_server_usr, mail_server_pw)
 
     header = 'Subject: Weekly Report - Staff Over 30 Unread Voicemails\n\n'
-    message = header + '''{},\n\nOur records indicate that the following employees
-have 30 or more unread voicemails in their mailboxes. Please contact these employees to ensure they listen to
-their voicemails and address immediately. Children's National policy requires all staff to listen to voicemails
-and either save, delete, or respond to the voicemail, as deemed appropriate, by close of business the following
-business day.\n\nIf you have questions about the information below, please contact the Help Desk.\n\n'''.format(manager_dict['first_name'])
+    message = header + '''{},\n\nOur records indicate that the following
+employees have 30 or more unread voicemails in their mailboxes. Please contact
+these employees to ensure they listen to their voicemails and address
+immediately. Our  policy requires all staff to listen to voicemails and either
+save, delete, or respond to the voicemail, as deemed appropriate, by close of
+business the following business day.\n\nIf you have questions about the
+information below, please contact the Help Desk.\n\n'''.format(manager_dict['first_name'])
 
     for report in managers[manager]:
         add_string = '{} {} with extension {} has {} unopened voicemails.\n\n'.format(report['first_name'], report['last_name'], report['extension'], report['total_unread'])
